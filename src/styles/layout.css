@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap');
+
+.container {
+  max-width: 60rem;
+  padding: 0 1rem;
+  margin: 3rem auto 6rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 35px;
+}
+
+.footer {
+  width: 100%;
+  bottom: 0;
+  position: fixed;
+  padding: 15px;
+  border-top: 1px solid lightgray;
+  display: flex;
+  align-items: center;
+  background-color: white;
+}
+
+.caroliveira {
+  height: 30px;
+  width: auto;
+  font: 50px 'Inconsolata', monospace;
+  margin: 0 5px;
+}
