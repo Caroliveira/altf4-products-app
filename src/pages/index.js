@@ -4,21 +4,42 @@ import MaterialTable from "material-table";
 import tableDefaults from "../utils/tableDefaults";
 import Layout from "../components/layout";
 import { Alert } from "@material-ui/lab";
-import { Snackbar } from "@material-ui/core";
+import {
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Button,
+} from "@material-ui/core";
 import { AddCircle, Edit, Delete } from "@material-ui/icons";
 
 export default class Home extends Component {
   state = {
+    id: "",
     products: [],
     error: "",
     success: "",
+    confirmDelete: false,
   };
 
   async componentDidMount() {
+    await this.getAllProducts();
+  }
+
+  async getAllProducts() {
     const res = await getProducts();
     res.message
       ? this.setState({ error: res.message })
       : this.setState({ products: res });
+  }
+
+  async delete() {
+    const res = await deleteProduct(this.state.id);
+    if (res.message) this.setState({ error: res.message });
+    else {
+      await this.getAllProducts();
+      this.setState({ success: "Produto deletado com sucesso!" });
+    }
   }
 
   table() {
@@ -48,12 +69,8 @@ export default class Home extends Component {
           {
             icon: Delete,
             tooltip: "Deletar produto",
-            onClick: async (evt, rowData) => {
-              const res = await deleteProduct(rowData._id);
-              res.message
-                ? this.setState({ error: res.message })
-                : this.setState({ success: "Produto deletado com sucesso!" });
-            },
+            onClick: async (evt, rowData) =>
+              this.setState({ confirmDelete: true, id: rowData._id }),
           },
           {
             icon: AddCircle,
@@ -72,10 +89,36 @@ export default class Home extends Component {
   }
 
   render() {
-    const { error, success } = this.state;
+    const { error, success, confirmDelete } = this.state;
     return (
       <Layout>
         {error === "" ? this.table() : this.errorAlert()}
+        <Dialog
+          open={confirmDelete}
+          onClose={() => this.setState({ confirmDelete: false })}
+        >
+          <DialogTitle>
+            Certeza que deseja excluir esse produto permanentemente?
+          </DialogTitle>
+          <DialogActions>
+            <Button
+              onClick={() => this.setState({ confirmDelete: false })}
+              color="secondary"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                this.setState({ confirmDelete: false });
+                this.delete();
+              }}
+              color="primary"
+              autoFocus
+            >
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Snackbar
           open={error !== ""}
           autoHideDuration={6000}
