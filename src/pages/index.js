@@ -15,8 +15,10 @@ export default class Home extends Component {
   };
 
   async componentDidMount() {
-    const products = await getProducts();
-    this.setState({ products: products });
+    const res = await getProducts();
+    res.message
+      ? this.setState({ error: res.message })
+      : this.setState({ products: res });
   }
 
   table() {
@@ -66,16 +68,15 @@ export default class Home extends Component {
   }
 
   errorAlert() {
-    // const { product } = this.state;
-    // return <Alert severity="error">{product.message}</Alert>;
+    const { error } = this.state;
+    return <Alert severity="error">{error}</Alert>;
   }
 
   render() {
-    const { status } = this.state.products;
     const { error, success } = this.state;
     return (
       <Layout>
-        {status === 200 ? this.table() : this.errorAlert()}
+        {error === "" ? this.table() : this.errorAlert()}
         <Snackbar
           open={error !== ""}
           autoHideDuration={6000}
