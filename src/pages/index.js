@@ -49,11 +49,10 @@ export default class Home extends Component {
             icon: Delete,
             tooltip: "Deletar produto",
             onClick: async (evt, rowData) => {
-              const { tableData, ...product } = rowData;
-              const res = await deleteProduct(product);
-              res.status === 200 || res.status === 204
-                ? this.setState({ success: res.message })
-                : this.setState({ error: res.message });
+              const res = await deleteProduct(rowData._id);
+              res.message
+                ? this.setState({ error: res.message })
+                : this.setState({ success: "Produto deletado com sucesso!" });
             },
           },
           {

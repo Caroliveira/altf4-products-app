@@ -17,6 +17,9 @@ export default class Product extends Component {
     name: "",
     amount: "",
     value: "",
+    nameNotFilled: false,
+    amountNotFilled: false,
+    valueNotFilled: false,
     message: "",
     error: "",
     success: "",
@@ -40,7 +43,20 @@ export default class Product extends Component {
   }
 
   changeState(evt) {
-    this.setState({ [evt.target.name]: evt.target.value });
+    this.setState({
+      [evt.target.name]: evt.target.value,
+      [`${evt.target.name}NotFilled`]: false,
+    });
+  }
+
+  validateFields() {
+    const notFilled = {};
+    if (this.state.name === "") notFilled.nameNotFilled = true;
+    if (this.state.amount === "") notFilled.amountNotFilled = true;
+    if (this.state.value === "") notFilled.valueNotFilled = true;
+    Object.keys(notFilled).length === 0
+      ? this.save()
+      : this.setState({ ...notFilled });
   }
 
   async save() {
@@ -62,7 +78,7 @@ export default class Product extends Component {
 
   form() {
     const { id } = this.props.match.params;
-    const { name, amount, value } = this.state;
+    const { name, amount, value, nameNotFilled, amountNotFilled, valueNotFilled } = this.state;
     return (
       <Card>
         <CardHeader title={`Alt+F4 - ${id ? "Editar" : "Criar"} produto`} />
@@ -71,6 +87,9 @@ export default class Product extends Component {
             name="name"
             fullWidth
             label="Nome"
+            required
+            error={nameNotFilled}
+            helperText={nameNotFilled? "Campo obrigatório" : null}
             value={name}
             onChange={(evt) => this.changeState(evt)}
           />
@@ -78,6 +97,9 @@ export default class Product extends Component {
             name="amount"
             fullWidth
             label="Quantidade"
+            required
+            error={amountNotFilled}
+            helperText={amountNotFilled? "Campo obrigatório" : null}
             value={amount}
             onChange={(evt) => this.changeState(evt)}
           />
@@ -85,6 +107,9 @@ export default class Product extends Component {
             name="value"
             fullWidth
             label="Valor"
+            required
+            error={valueNotFilled}
+            helperText={valueNotFilled? "Campo obrigatório" : null}
             value={value}
             onChange={(evt) => this.changeState(evt)}
           />
@@ -93,7 +118,7 @@ export default class Product extends Component {
           <Button color="secondary" onClick={() => this.props.history.goBack()}>
             Voltar
           </Button>
-          <Button color="primary" onClick={() => this.save()}>
+          <Button color="primary" onClick={() => this.validateFields()}>
             Salvar
           </Button>
         </CardActions>
