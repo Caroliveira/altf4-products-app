@@ -29,21 +29,21 @@ export default class Home extends Component {
         {...tableDefaults()}
         title="Produtos"
         columns={[
-          { title: "Nome", field: "nome" },
-          { title: "Quantidade", field: "quantidade" },
+          { title: "Nome", field: "name" },
+          { title: "Quantidade", field: "amount" },
           {
             title: "Valor",
-            field: "valor",
-            render: (vl) => `R$ ${vl.valor},00`,
+            field: "value",
+            render: (vl) => `R$ ${vl.value},00`,
           },
         ]}
-        data={products.data}
+        data={products}
         actions={[
           {
             icon: Edit,
             tooltip: "Editar produto",
             onClick: async (evt, rowData) =>
-              history.push(`/product/${rowData.id}`),
+              history.push(`/product/${rowData._id}`),
           },
           {
             icon: Delete,

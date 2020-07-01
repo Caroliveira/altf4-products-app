@@ -13,6 +13,7 @@ ReactDOM.render(
   <BrowserRouter history={hist}>
     <Switch>
       <Route path="/" exact component={Home} />
+      <Route path="/product" exact component={Product} />
       <Route path="/product/:id" component={Product} />
       <Redirect to="/" />
     </Switch>

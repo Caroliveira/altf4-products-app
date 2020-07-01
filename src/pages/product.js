@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Layout from "../components/layout";
 import { getProductById, editProduct, createProduct } from "../services";
+import Snackbar from "../components/snackbar";
 import { Alert } from "@material-ui/lab";
 import {
   Card,
@@ -9,7 +10,6 @@ import {
   CardActions,
   TextField,
   Button,
-  Snackbar,
 } from "@material-ui/core";
 
 export default class Product extends Component {
@@ -23,18 +23,19 @@ export default class Product extends Component {
   };
 
   async componentDidMount() {
-    const product = await getProductById(this.props.match.params.id);
-    if (product.status === 200) {
-      const { data } = product;
-      this.setState({
-        name: data.nome,
-        amount: data.quantidade,
-        value: data.valor,
-      });
-    } else {
-      this.setState({
-        message: product.message,
-      });
+    if (this.props.match.params.id) {
+      const res = await getProductById(this.props.match.params.id);
+      if (res.message) {
+        this.setState({
+          message: res.message,
+        });
+      } else {
+        this.setState({
+          name: res.name,
+          amount: res.amount,
+          value: res.value,
+        });
+      }
     }
   }
 
@@ -43,55 +44,55 @@ export default class Product extends Component {
   }
 
   async save() {
-    const { id } = this.props.match.params
-    let res = "";
+    const { id } = this.props.match.params;
     const product = {
-      nome: this.state.name,
-      quantidade: this.state.amount,
-      valor: this.state.value,
+      name: this.state.name,
+      amount: this.state.amount,
+      value: this.state.value,
     };
-    if (id) {
-      product.id = id;
-      res = await editProduct(product);
-    } else {
-      res = await createProduct(product);
-    }
-    res.status === 200 || res.status === 201
-      ? this.setState({ success: res.message })
-      : this.setState({ error: res.message });
+    const res = id
+      ? await editProduct(id, product)
+      : await createProduct(product);
+    res.message
+      ? this.setState({ error: res.message })
+      : this.setState({
+          success: `Produto ${id ? "editado" : "criado"} com sucesso!`,
+        });
   }
+
   form() {
-    const { id } = this.props.match.params
+    const { id } = this.props.match.params;
+    const { name, amount, value } = this.state;
     return (
       <Card>
-        <CardHeader
-          title={`Alt+F4 - ${id ? "Editar" : "Criar"} produto`}
-        />
+        <CardHeader title={`Alt+F4 - ${id ? "Editar" : "Criar"} produto`} />
         <CardContent>
           <TextField
             name="name"
             fullWidth
             label="Nome"
-            value={this.state.name}
+            value={name}
             onChange={(evt) => this.changeState(evt)}
           />
           <TextField
             name="amount"
             fullWidth
             label="Quantidade"
-            value={this.state.amount}
+            value={amount}
             onChange={(evt) => this.changeState(evt)}
           />
           <TextField
             name="value"
             fullWidth
             label="Valor"
-            value={this.state.value}
+            value={value}
             onChange={(evt) => this.changeState(evt)}
           />
         </CardContent>
         <CardActions>
-          <Button color="secondary" onClick={() => this.props.history.goBack()}>Voltar</Button>
+          <Button color="secondary" onClick={() => this.props.history.goBack()}>
+            Voltar
+          </Button>
           <Button color="primary" onClick={() => this.save()}>
             Salvar
           </Button>
@@ -103,32 +104,22 @@ export default class Product extends Component {
   errorAlert() {
     return <Alert severity="error">{this.state.message}</Alert>;
   }
+
   render() {
     const { message, error, success } = this.state;
     return (
       <Layout>
         {message === "" ? this.form() : this.errorAlert()}
         <Snackbar
-          open={error !== ""}
-          autoHideDuration={6000}
+          type="error"
+          message={error}
           onClose={() => this.setState({ error: "" })}
-        >
-          <Alert onClose={() => this.setState({ error: "" })} severity="error">
-            {error}
-          </Alert>
-        </Snackbar>
+        />
         <Snackbar
-          open={success !== ""}
-          autoHideDuration={6000}
+          type="success"
+          message={success}
           onClose={() => this.setState({ success: "" })}
-        >
-          <Alert
-            onClose={() => this.setState({ success: "" })}
-            severity="success"
-          >
-            {success}
-          </Alert>
-        </Snackbar>
+        />
       </Layout>
     );
   }

@@ -6,7 +6,6 @@ export async function getProducts() {
     const res = await axios.get(`${base}/products`, {
       headers: { Accept: "application/json" },
     });
-    console.log(res.data)
     return res.data;
   } catch (error) {
     return {
